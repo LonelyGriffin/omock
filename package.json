@@ -1,0 +1,22 @@
+{
+  "name": "omock",
+  "version": "1.0.0-rc.1",
+  "description": "js util for mock object",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LonelyGriffin/omock.git"
+  },
+  "author": "LonelyGriffin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LonelyGriffin/omock/issues"
+  },
+  "homepage": "https://github.com/LonelyGriffin/omock#readme",
+  "devDependencies": {
+    "jest": "^21.2.1"
+  }
+}
