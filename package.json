@@ -2,9 +2,10 @@
   "name": "omock",
   "version": "1.0.0-rc.1",
   "description": "js util for mock object",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "node build"
   },
   "repository": {
     "type": "git",
