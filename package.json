@@ -4,8 +4,8 @@
   "description": "js util for mock object",
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest",
-    "build": "node build"
+    "test": "npm run build && jest",
+    "build": "babel src --out-dir dist"
   },
   "repository": {
     "type": "git",
@@ -18,9 +18,10 @@
   },
   "homepage": "https://github.com/LonelyGriffin/omock#readme",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-jest": "^21.2.0",
-    "jest": "^21.2.1",
-    "regenerator-runtime": "^0.11.0"
+    "babel-preset-env": "^1.6.1",
+    "jest": "^21.2.1"
   }
 }

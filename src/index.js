@@ -1,33 +1,88 @@
-// @flow
-import DateMockHelper from './date';
-import ObjectMockHelper from './object';
+import { resolve } from "url";
 
-export const { mock } = ObjectMockHelper;
-export const { mockConstructor: mockDateConstructor, OriginalDate } = DateMockHelper;
-
-export function mockMethod(object, methodName, method) {
-	const mockedFn = jest.fn(method);
-	mock(object, methodName, mockedFn);
-	return mockedFn;
+const MOCKED_OBJECTS = new Map();
+const CONFIG = {
+	global: window || global || this,
+	methodSpyCreator: methodResult => () => methodResult,
 }
 
-export function mockAsyncMethod(object, methodName, resolveValue) {
+// UTILS
+
+const createMockedObject = (object) => ({
+	originalProps: new Map(),
+	current: object,
+})
+
+// BASE
+
+export const configureMock = (config = {}) => {
+	CONFIG.global = config.global || CONFIG.global;
+	CONFIG.methodSpyCreator = config.methodSpyCreator || CONFIG.methodSpyCreator;
+}
+
+export const mock = (object, propertyName, newPropertyValue) => {
+	if (propertyName in object) {
+		const mockedObject = MOCKED_OBJECTS.get(object) || createMockedObject(object);
+
+		if (!mockedObject.originalProps.has(propertyName)) {
+			mockedObject.originalProps.set(propertyName, mockedObject.current[propertyName]);
+		}
+
+		mockedObject.current[propertyName] = propertyValue;
+		MOCKED_OBJECTS.set(object, mockedObject);
+	} else {
+		throw new Error(`Object mock failed: object have no property ${propertyName}`);
+	}
+}
+
+export const unmockAll = () => {
+	MOCKED_OBJECTS.forEach((mockedObject) => {
+		mockedObject.originalProps.forEach((originalProp, propertyName) => {
+			if (propertyName in mockedObject.current) {
+				mockedObject.current[propertyName] = originalProp;
+			}
+		});
+	});
+	MOCKED_OBJECTS.clear();
+}
+
+export const getOriginal = (object, propertyName) => {
+	const mockedObject = MOCKED_OBJECTS.get(object);
+
+	return mockedObject ? mockedObject.originalProps.get(propertyName) : undefined;
+}
+
+// SUGAR
+
+export const mockMethod = (object, methodName, newMethodResult, ...spyCreatorProps) => {
+	const mockedMethod = CONFIG.methodSpyCreator(newMethodResult, ...spyCreatorProps)
+	
+	mock(object, methodName, mockedMethod);
+	
+	return mockedMethod;
+}
+
+export const mockAsyncMethod = (object, methodName, resolveValue, ...spyCreatorProps) => {
 	const promise = Promise.resolve(resolveValue);
-	return {
-		promise,
-		fn: mockMethod(object, methodName, () => promise),
-	};
+	const method = mockMethod(object, methodName, promise, ...spyCreatorProps);
+
+	return { method, promise };
 }
 
-export function mockAsyncMethodWithException(object, methodName, rejectValue) {
+export const mockAsyncMethodWithException = (object, methodName, rejectValue, ...spyCreatorProps) => {
 	const promise = Promise.reject(rejectValue);
-	return {
-		promise,
-		fn: mockMethod(object, methodName, () => promise),
-	};
+	const method = mockMethod(object, methodName, promise, ...spyCreatorProps);
+
+	return { method, promise };
 }
 
-export function unmockAll() {
-	ObjectMockHelper.unmockAll();
-	DateMockHelper.unmock();
+export const mockDateConstructor = (date) => {
+	class MockedDate extends CONFIG.global.Date {
+		constructor() {
+			super();
+			return date;
+		}
+	};
+
+	mock(CONFIG.global, 'Date', MockedDate);
 }
