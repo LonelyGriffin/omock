@@ -48,7 +48,7 @@ var mock = exports.mock = function mock(object, propertyName, newPropertyValue) 
 			mockedObject.originalProps.set(propertyName, mockedObject.current[propertyName]);
 		}
 
-		mockedObject.current[propertyName] = propertyValue;
+		mockedObject.current[propertyName] = newPropertyValue;
 		MOCKED_OBJECTS.set(object, mockedObject);
 	} else {
 		throw new Error("Object mock failed: object have no property " + propertyName);
