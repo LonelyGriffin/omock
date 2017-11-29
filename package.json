@@ -1,7 +1,15 @@
 {
   "name": "omock",
   "version": "1.0.0-rc.1",
-  "description": "js util for mock object",
+  "description": "js tool for mocking objects",
+  "keywords": [
+    "mock",
+    "mocking",
+    "modules",
+    "es6",
+    "object",
+    "date"
+  ],
   "main": "dist/index.js",
   "scripts": {
     "test": "npm run build && jest",
