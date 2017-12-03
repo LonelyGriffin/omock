@@ -1,11 +1,8 @@
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.mockDateConstructor = exports.mockAsyncMethodWithException = exports.mockAsyncMethod = exports.mockMethod = exports.getOriginal = exports.unmockAll = exports.mock = exports.configureMock = undefined;
-
-var _url = require("url");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -40,18 +37,18 @@ var configureMock = exports.configureMock = function configureMock() {
 	CONFIG.methodSpyCreator = config.methodSpyCreator || CONFIG.methodSpyCreator;
 };
 
-var mock = exports.mock = function mock(object, propertyName, newPropertyValue) {
-	if (propertyName in object) {
+var mock = exports.mock = function mock(object, name, value) {
+	if (name in object) {
 		var mockedObject = MOCKED_OBJECTS.get(object) || createMockedObject(object);
 
-		if (!mockedObject.originalProps.has(propertyName)) {
-			mockedObject.originalProps.set(propertyName, mockedObject.current[propertyName]);
+		if (!mockedObject.originalProps.has(name)) {
+			mockedObject.originalProps.set(name, mockedObject.current[name]);
 		}
 
-		mockedObject.current[propertyName] = newPropertyValue;
+		mockedObject.current[name] = value;
 		MOCKED_OBJECTS.set(object, mockedObject);
 	} else {
-		throw new Error("Object mock failed: object have no property " + propertyName);
+		throw new Error('Object mock failed: object have no property ' + name);
 	}
 };
 
@@ -66,44 +63,45 @@ var unmockAll = exports.unmockAll = function unmockAll() {
 	MOCKED_OBJECTS.clear();
 };
 
-var getOriginal = exports.getOriginal = function getOriginal(object, propertyName) {
+var getOriginal = exports.getOriginal = function getOriginal(object, name) {
 	var mockedObject = MOCKED_OBJECTS.get(object);
+	var originalProperty = mockedObject ? mockedObject.originalProps.get(name) : undefined;
 
-	return mockedObject ? mockedObject.originalProps.get(propertyName) : undefined;
+	return originalProperty ? originalProperty : object[name];
 };
 
 // SUGAR
 
-var mockMethod = exports.mockMethod = function mockMethod(object, methodName, newMethodResult) {
+var mockMethod = exports.mockMethod = function mockMethod(object, name, value) {
 	for (var _len = arguments.length, spyCreatorProps = Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {
 		spyCreatorProps[_key - 3] = arguments[_key];
 	}
 
-	var mockedMethod = CONFIG.methodSpyCreator.apply(CONFIG, [newMethodResult].concat(spyCreatorProps));
+	var mockedMethod = CONFIG.methodSpyCreator.apply(CONFIG, [value].concat(spyCreatorProps));
 
-	mock(object, methodName, mockedMethod);
+	mock(object, name, mockedMethod);
 
 	return mockedMethod;
 };
 
-var mockAsyncMethod = exports.mockAsyncMethod = function mockAsyncMethod(object, methodName, resolveValue) {
+var mockAsyncMethod = exports.mockAsyncMethod = function mockAsyncMethod(object, name, value) {
 	for (var _len2 = arguments.length, spyCreatorProps = Array(_len2 > 3 ? _len2 - 3 : 0), _key2 = 3; _key2 < _len2; _key2++) {
 		spyCreatorProps[_key2 - 3] = arguments[_key2];
 	}
 
-	var promise = Promise.resolve(resolveValue);
-	var method = mockMethod.apply(undefined, [object, methodName, promise].concat(spyCreatorProps));
+	var promise = Promise.resolve(value);
+	var method = mockMethod.apply(undefined, [object, name, promise].concat(spyCreatorProps));
 
 	return { method: method, promise: promise };
 };
 
-var mockAsyncMethodWithException = exports.mockAsyncMethodWithException = function mockAsyncMethodWithException(object, methodName, rejectValue) {
+var mockAsyncMethodWithException = exports.mockAsyncMethodWithException = function mockAsyncMethodWithException(object, name, error) {
 	for (var _len3 = arguments.length, spyCreatorProps = Array(_len3 > 3 ? _len3 - 3 : 0), _key3 = 3; _key3 < _len3; _key3++) {
 		spyCreatorProps[_key3 - 3] = arguments[_key3];
 	}
 
-	var promise = Promise.reject(rejectValue);
-	var method = mockMethod.apply(undefined, [object, methodName, promise].concat(spyCreatorProps));
+	var promise = Promise.reject(error);
+	var method = mockMethod.apply(undefined, [object, name, promise].concat(spyCreatorProps));
 
 	return { method: method, promise: promise };
 };

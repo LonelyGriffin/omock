@@ -78,28 +78,32 @@ describe('omock', () => {
 
 			expect(actual).toBe(originalValue);
 		});
-		it('should return undefined if property no found', () => {
+		it('should return original if property not was mocked', () => {
+			const originalValue = 'original value';
+
 			const object = {
-				property: 'original value',
+				property: originalValue,
+				otherProperty: 'other value',
 			}
 
-			OMock.mock(object, 'property', 'mocked value');
+			OMock.mock(object, 'otherProperty', 'mocked value');
 
-			const actual = OMock.getOriginal(object, 'nonexistenProperty');
+			const actual = OMock.getOriginal(object, 'property');
 
-			expect(actual).toBe(undefined);
+			expect(actual).toBe(originalValue);
 		});
-		it('should return undefined if object no found', () => {
+		it('should return original if object not was mocked', () => {
+			const originalValue = 'original value';
+			
 			const object = {
-				property: 'original value',
+				property: originalValue,
 			}
-			const otherObject = {};
 
 			OMock.mock(object, 'property', 'mocked value');
 
-			const actual = OMock.getOriginal(otherObject, 'property');
+			const actual = OMock.getOriginal(object, 'property');
 
-			expect(actual).toBe(undefined);
+			expect(actual).toBe(originalValue);
 		});
 	});
 });
