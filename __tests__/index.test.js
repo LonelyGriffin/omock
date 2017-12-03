@@ -64,4 +64,42 @@ describe('omock', () => {
 			expect(object2.property2).toBe(originalValue2);
 		});
 	});
+	describe('.getOriginal()', () => {
+		it('should return original value', () => {
+			const originalValue = 'original value';
+
+			const object = {
+				property: originalValue,
+			}
+
+			OMock.mock(object, 'property', 'mocked value');
+
+			const actual = OMock.getOriginal(object, 'property');
+
+			expect(actual).toBe(originalValue);
+		});
+		it('should return undefined if property no found', () => {
+			const object = {
+				property: 'original value',
+			}
+
+			OMock.mock(object, 'property', 'mocked value');
+
+			const actual = OMock.getOriginal(object, 'nonexistenProperty');
+
+			expect(actual).toBe(undefined);
+		});
+		it('should return undefined if object no found', () => {
+			const object = {
+				property: 'original value',
+			}
+			const otherObject = {};
+
+			OMock.mock(object, 'property', 'mocked value');
+
+			const actual = OMock.getOriginal(otherObject, 'property');
+
+			expect(actual).toBe(undefined);
+		});
+	});
 });
