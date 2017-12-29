@@ -1,0 +1,169 @@
+*Обратите внимание! Omock использует **Map** из es6, ваше тестовое окружение должно поддерживать его*
+
+Omock это небольшой набор методов для создания фиктивных свойств в объекте (mocking), Это черезвычайно удобно при тестировании сущностей с зависимостями в виде других модулей <br/>
+Взгляните на небольшой пример:
+
+```javascript
+//foo.js
+export default {
+  ten: () => 10,
+}
+
+// bar.js
+import Foo from 'foo.js';
+
+export default {
+  twenty: () => Foo.ten() * 2,
+}
+
+// bar.test.js
+import Bar from 'bar.js';
+import Foo from 'foo.js';
+import { mockMethod, unmockAll } from 'omock';
+
+describe('Bar', () => {
+  afterEach(() => {
+    unmockAll();
+  });
+  it('should use Foo', () => {
+    mockMethod(Foo, 'ten', 100);
+
+    expect(Bar.twenty()).toBe(200);
+  });
+  ...
+})
+```
+
+Почему не jest.mock с его \_\_mock\_\_ папкой или аналог? Потому что mocking экспорта в отдельном файле труднее в поддержке. А также, особенности его реализации приходится постоянно держать в уме.
+Mocking непосредственно в тестовом кейсе является более прозрачным и читабельным.
+
+*Обратите внимание! При попытке подменить свойство отсутствующие в объекте будет выброшена ошибка*
+
+## Api
+
+* <a href="#configureMock">configureMock</a> - Начальная настройка (опционально)
+* <a href="#mock">mock</a> - основной метод, позволяет 'подменить' свойство объекта
+* <a href="#unmockAll">unmockAll</a> - восстанавливает все измененные библиотекой объекты в первоначальное состояние.
+* <a href="#getOriginal">getOriginal</a> - возвращает оригинальное значение свойства
+* <a href="#mockMethod">mockMethod</a> - удобный способ подмены методов в объекте
+* <a href="#mockAsyncMethod">mockAsyncMethod</a> - удобный способ подмены методов в объекте, которые возвращают promise. С заменой на метод возвращающий resolved promise с заданным значением
+* <a href="#mockAsyncMethodWithException">mockAsyncMethodWithException</a> - удобный способ подмены методов в объекте, которые возвращают promise. С заменой на метод возвращающий rejected promise с заданной ошибкой
+
+<a id="configureMock"></a>
+### configureMock
+Позволяет для методов mockMethod, mockAsyncMethod, mockAsyncMethodWithException задать spy функцию наподобие jest.fn, Достаточно сконфигурировать один раз.
+
+Входные параметры:
+* Object: {<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;methodSpyCreator: (method: Function, ...args: Array<any>) => SpiedFunction;<br />
+}
+
+methodSpyCreator - spy утилита для создания mocked функций на подобие jest.fn
+
+Возвращаемое значение: void
+
+Пример:
+```javascript
+// bar.test.js
+import { configureMock } from 'omock';
+
+configureMock({ methodSpyCreator: jest.fn });
+```
+
+<a id="mock"></a>
+### mock
+Позволяет подменить значение свойства в объекте на заданное
+
+Входные параметры:
+* object: Object - Целевой объект
+* name: string - Имя подменяемого свойства
+* value: any - Новое значение свойства
+
+Возвращаемое значение: void
+
+<a id="unmockAll"></a>
+### unmockAll
+Позволяет сбросить все подмены совершенные до этого. Восстанавливая первоначальное состояние объектов
+
+Входные параметры отсутствуют
+
+Возвращаемое значение: void
+
+<a id="getOriginal"></a>
+### getOriginal
+Возвращает оригинальное значения свойства объекта.
+
+Входные параметры:
+* object: Object - Целевой объект
+* name: string - Имя подмененного свойства
+
+<a id="mockMethod"></a>
+### mockMethod
+Позволяет подменить возвращаемое значение метода в объекте
+
+Входные параметры:
+* object: Object - Целевой объект
+* name: string - Имя подменяемого метода
+* value: any - Новое возвращаемое значение метода
+
+Возвращаемое значение: подменяющая функция, если сконфигурирован spy creator то она будет им обернута.
+
+<a id="mockAsyncMethod"></a>
+### mockAsyncMethod
+Позволяет подменить возвращаемое значение promise метода в объекте
+
+Входные параметры:
+* object: Object - Целевой объект
+* name: string - Имя подменяемого метода
+* value: any - Новое возвращаемое значение в promise
+
+Возвращаемое значение: {
+  method - подменяющая функция, если сконфигурирован spy creator то она будет им обернута.
+  promise - возвращаемый методом promise
+}
+
+<a id="mockAsyncMethodWithException"></a>
+### mockAsyncMethodWithException
+Позволяет подменить возвращаемое значение promise метода в объекте с исключением
+
+Входные параметры:
+* object: Object - Целевой объект
+* name: string - Имя подменяемого метода
+* value: any - Значение выбрасываемой ошибки
+
+Возвращаемое значение: {
+  method - подменяющая функция, если сконфигурирован spy creator то она будет им обернута.
+  promise - возвращаемый методом promise с ошибкой
+}
+
+Пример:
+```javascript
+//foo.js
+export default {
+  ten: () => 10,
+}
+
+// bar.js
+import Foo from 'foo.js';
+
+export default {
+  twenty: () => Foo.ten() * 2,
+}
+
+// bar.test.js
+import Bar from 'bar.js';
+import Foo from 'foo.js';
+import { mockMethod, unmockAll } from 'omock';
+
+describe('Bar', () => {
+  afterEach(() => {
+    unmockAll();
+  });
+  it('should use Foo', () => {
+    mockMethod(Foo, 'ten', 100);
+
+    expect(Bar.twenty()).toBe(200);
+  });
+  ...
+})
+```
