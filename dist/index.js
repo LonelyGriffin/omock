@@ -1,18 +1,10 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 var MOCKED_OBJECTS = new Map();
 var CONFIG = {
-	global: window || global || undefined,
 	methodSpyCreator: function methodSpyCreator(methodResult) {
 		return function () {
 			return methodResult;
@@ -33,7 +25,6 @@ var CONFIG = {
 var configureMock = exports.configureMock = function configureMock() {
 	var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-	CONFIG.global = config.global || CONFIG.global;
 	CONFIG.methodSpyCreator = config.methodSpyCreator || CONFIG.methodSpyCreator;
 };
 
@@ -48,7 +39,7 @@ var mock = exports.mock = function mock(object, name, value) {
 		mockedObject.current[name] = value;
 		MOCKED_OBJECTS.set(object, mockedObject);
 	} else {
-		throw new Error('Object mock failed: object have no property ' + name);
+		throw new Error("Object mock failed: object have no property " + name);
 	}
 };
 
@@ -104,26 +95,4 @@ var mockAsyncMethodWithException = exports.mockAsyncMethodWithException = functi
 	var method = mockMethod.apply(undefined, [object, name, promise].concat(spyCreatorProps));
 
 	return { method: method, promise: promise };
-};
-
-var mockDateConstructor = exports.mockDateConstructor = function mockDateConstructor(date) {
-	var MockedDate = function (_CONFIG$global$Date) {
-		_inherits(MockedDate, _CONFIG$global$Date);
-
-		function MockedDate() {
-			var _ret;
-
-			_classCallCheck(this, MockedDate);
-
-			var _this = _possibleConstructorReturn(this, (MockedDate.__proto__ || Object.getPrototypeOf(MockedDate)).call(this));
-
-			return _ret = date, _possibleConstructorReturn(_this, _ret);
-		}
-
-		return MockedDate;
-	}(CONFIG.global.Date);
-
-	;
-
-	mock(CONFIG.global, 'Date', MockedDate);
 };

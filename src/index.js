@@ -1,6 +1,5 @@
 const MOCKED_OBJECTS = new Map();
 const CONFIG = {
-	global: window || global || this,
 	methodSpyCreator: methodResult => () => methodResult,
 }
 
@@ -14,7 +13,6 @@ const createMockedObject = (object) => ({
 // BASE
 
 export const configureMock = (config = {}) => {
-	CONFIG.global = config.global || CONFIG.global;
 	CONFIG.methodSpyCreator = config.methodSpyCreator || CONFIG.methodSpyCreator;
 }
 
@@ -73,15 +71,4 @@ export const mockAsyncMethodWithException = (object, name, error, ...spyCreatorP
 	const method = mockMethod(object, name, promise, ...spyCreatorProps);
 
 	return { method, promise };
-}
-
-export const mockDateConstructor = (date) => {
-	class MockedDate extends CONFIG.global.Date {
-		constructor() {
-			super();
-			return date;
-		}
-	};
-
-	mock(CONFIG.global, 'Date', MockedDate);
 }
