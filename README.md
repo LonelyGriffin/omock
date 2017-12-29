@@ -1,4 +1,4 @@
-EN <a href="./omock/blob/master/README_RU.md">RU</a>
+EN <a href="https://github.com/LonelyGriffin/omock/blob/master/README_RU.md">RU</a>
 
 Omock is small set of methods for object property mocking. It is very conveniently for testing when you have dependence between modules<br/>
 

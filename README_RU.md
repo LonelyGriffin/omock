@@ -1,4 +1,4 @@
-<a href="./">EN</a> RU
+<a href="https://github.com/LonelyGriffin/omock/blob/master/README.md">EN</a> RU
 
 Omock это небольшой набор методов для создания фиктивных свойств в объекте (mocking), Это черезвычайно удобно при тестировании сущностей с зависимостями в виде других модулей <br/>
 
